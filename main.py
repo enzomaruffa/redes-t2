@@ -83,6 +83,7 @@ def play_menu():
 
 	if not has_play_possibility(cards, last_card):
 		print("None of your cards are valid!")
+		print_player_cards()
 		global bought_single_card
 		if not bought_single_card:
 			input("Press enter to buy cards!")
@@ -90,6 +91,7 @@ def play_menu():
 		else:
 			bought_single_card = False
 			print("You've already bought the mandatory 1 card")
+			print("[DEBUG] bought_single_card now: " + str(bought_single_card))
 			input("Press enter to pass your turn")
 			pass_turn()
 	else:
@@ -115,7 +117,7 @@ def play_routine():
 	print_player_cards()
 	
 	card_index = int(input("Choose a card by its row number: ")) - 1
-	while (not is_valid_play(cards[card_index], last_card)):
+	while (card_index > len(cards) or not is_valid_play(cards[card_index], last_card)):
 		card_index = int(input("Invalid card! Choose another: ")) - 1
 
 	play(cards[card_index])
@@ -184,7 +186,7 @@ connection.setup_connection(self_name)
 
 dealer = connection.get_dealer()
 
-cards_per_player = 2
+cards_per_player = 7
 colors = ["BLUE", "RED", "GREEN", "YELLOW"]
 deck = []
 cards = []
@@ -199,6 +201,7 @@ valid_draw = True # Checks if draw cards has been "drawed"
 return_token_target = None
 send_card_amount = 0
 
+last_received_message = None
 
 
 # Creates the deck
@@ -210,7 +213,7 @@ if is_dealer():
 	deck = create_deck()
 	
 	not_sent_cards = ["A", "B", "C", "D"] # People who haven't received their cards yet
-	connection.send_cards_to(self_name, not_sent_cards.pop(), get_cards_from_deck(deck, 7))
+	connection.send_cards_to(self_name, not_sent_cards.pop(), get_cards_from_deck(deck, cards_per_player))
 
 # Sends first message
 	
@@ -226,10 +229,21 @@ while True:
 
 	print("[DEBUG] Waiting new message!")
 	message = connection.wait_message() # buffer size is 1024 bytes
+
+	# Somehow messages repeat (?)
+	"""print("[DEBUG] Received message dict:")
 	print(message.__dict__)
+	print("[DEBUG] Last received message:")
+	if (last_received_message != None):
+		print(last_received_message.__dict__)"""
+
+	if (message == last_received_message):
+		print("[DEBUG] Same message received twice!")
+		message = connection.wait_message()
+
+	last_received_message = message
 
 	print("[DEBUG] Message from " + message.sender + " to " + message.target + ". Type: " + message.type)
-
 
 	# Blocks +2 effect from second player if the affected player isn't able to overcome it
 	if message.type == "CARD_REQUEST":
@@ -282,6 +296,7 @@ while True:
 		if message.type == "WIN":
 			print("[DEBUG] [Target] WIN")
 			print("Player " + message.sender + " has won the game!")
+			connection.send_message(message)
 			quit()
 
 	# Message has been received by every other player

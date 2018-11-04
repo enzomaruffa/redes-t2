@@ -41,6 +41,12 @@ class Message:
 		self.type = msg_type # CARD_PAYLOAD, TOKEN, PLAY, CARD_REQUEST
 		self.content = content # ?
 
+	def __eq__(self, other):
+		if isinstance(other, Message):
+			if self.sender == other.sender and self.target == other.target and self.type == other.type:
+				return True
+		return False
+
 # -------------------------------------------
  
 # ---------------------------------------
