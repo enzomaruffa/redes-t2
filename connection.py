@@ -4,7 +4,7 @@
 __name__ = "connection"
 
 import socket
-import json
+import pickle
 
 # ENV file stuff
 import os
@@ -27,7 +27,6 @@ C_PORT = os.getenv('C_PORT')
 D_PORT = os.getenv('D_PORT')
 
 DEALER = os.getenv('DEALER')
-CARDS_PER_PLAYER = os.getenv('CARDS_PER_PLAYER')
 
 listener_socket = None
 sender_socket = None
@@ -36,11 +35,11 @@ dest_info = None
 # -------------------------------------------
 # Message class
 class Message:
-	def __init__(self, sender, target, msg_type, content):
-		self.sender = sender # NORMAL, REVERSE, DRAW 
-		self.target = target
-		self.type = msg_type #CARD_PAYLOAD, TOKEN, PLAY, CARD_REQUEST
-		self.content = content
+	def __init__(self, sender, target, msg_type, content=None):
+		self.sender = sender # A, B, C, D, ...
+		self.target = target # A, B, C, D, ..., ALL
+		self.type = msg_type # CARD_PAYLOAD, TOKEN, PLAY, CARD_REQUEST
+		self.content = content # ?
 
 # -------------------------------------------
  
@@ -76,6 +75,8 @@ def setup_connection(self_name):
 	global sender_socket
 	sender_socket = socket.socket(socket.AF_INET, # Internet
 	                   socket.SOCK_DGRAM) # UDP
+
+	global dest_info
 	dest_info = (target_ip, target_port)	
 
 	# sets listener socket
@@ -89,23 +90,57 @@ def setup_connection(self_name):
 
 def wait_message():
 	data, addr = listener_socket.recvfrom(1024)
-	print(data)
+	message = pickle.loads(data)
+	return message
 
 def send_message(message):
-	sender_socket.sendto(message, dest_info)
+	message_code = pickle.dumps(message)
+	sender_socket.sendto(message_code, dest_info)
 
 def send_cards_to(sender, target, cards):
-	print("[DEBUG] Sending cards to " + player)
+	print("[DEBUG] Sending cards to " + target)
 	message = Message(sender, target, "CARD_PAYLOAD", cards)
+	send_message(message)
+
+def pass_token(sender, target=False):
+	if (target):
+		message = Message(sender, target, "TOKEN")
+	else:
+		target = get_next_player(sender)[0]
+		message = Message(sender, target, "TOKEN")
+
+	print("[DEBUG] Sending token to " + target)
+
+	send_message(message)
+
+def pass_token_skip(sender):
+	skipped_player = get_next_player(sender)[0]
+	target = get_next_player(skipped_player)[0]
+
+	pass_token(sender, target)
+
+def send_play(sender, card):
+	print("[DEBUG] Sending played card to ALL")
+	message = Message(sender, "ALL", "PLAY", card)
 	"""for card in initial_cards:
 		print(card)
 	"""
-	print(message.__dict__)
-	json = json.dumps(message.__dict__)
+	send_message(message)
 
-	send_message(json)
+def request_cards(sender, target, amount):
+	print("[DEBUG] Sending " + str(amount) +" card requests to " + target)
+	message = Message(sender, target, "CARD_REQUEST", amount)
+	send_message(message)
 
+def uno(sender):
+	print("[DEBUG] Sending UNO!")
+	message = Message(sender, "ALL", "UNO")
+	send_message(message)
 
+def win(sender):
+	print("[DEBUG] Sending win warning!")
+	message = Message(sender, "ALL", "WIN")
+	send_message(message)
 # ---------------------------------------
 
 
