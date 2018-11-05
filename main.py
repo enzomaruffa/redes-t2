@@ -8,6 +8,14 @@ from random import shuffle
 # -------------------------------------------
 # Card class
 class Card:
+
+	colors = {
+	 	"RED": "\033[91m",
+	 	"YELLOW": "\033[93m",
+		"BLUE": "\033[96m",
+		"GREEN": "\033[92m",
+	}
+
 	def __init__(self, card_type, num, color):
 		self.card_type = card_type # NORMAL, SKIP, DRAW 
 		self.num = num
@@ -15,11 +23,12 @@ class Card:
 
 	def __str__(self):
 		if (self.card_type == "NORMAL"):
-			return "NUM: " + str(self.num) + ". COLOR: " + self.color 
+			return Card.colors.get(self.color) + "NUM: " + str(self.num) +"\033[00m"
 		elif (self.card_type == "SKIP"):
-			return "TYPE: " + str(self.card_type) + ". COLOR: " + self.color 
+			return Card.colors.get(self.color) + "TYPE: " + str(self.card_type) + "\033[00m"
 		else:
-			return "TYPE: " + str(self.card_type) + ". NUM: " + str(self.num) + ". COLOR: " + self.color 
+			return Card.colors.get(self.color) + "NUM: +" + str(self.num) + "\033[00m"
+
 
 # -------------------------------------------
 
@@ -52,14 +61,6 @@ def create_deck():
 	deck = numeric_cards + draw_cards + reverse_cards
 	shuffle(deck)
 
-	"""
-	for card in deck:
-		print(card)
-
-	for player in players:
-		initial_cards = get_cards_from_deck(deck, 7)
-		connection.send_cards_to(player, initial_cards)
-	"""
 	return deck
 
 def print_player_cards():
@@ -91,7 +92,7 @@ def play_menu():
 		else:
 			bought_single_card = False
 			print("You've already bought the mandatory 1 card")
-			print("[DEBUG] bought_single_card now: " + str(bought_single_card))
+			#print("[DEBUG] bought_single_card now: " + str(bought_single_card))
 			input("Press enter to pass your turn")
 			pass_turn()
 	else:
@@ -166,7 +167,7 @@ def force_buy():
 
 def pass_turn():
 	connection.pass_token(self_name)
-	print("[DEBUG - Pass Turn] Sending token to next player ")
+	##print("[DEBUG - Pass Turn] Sending token to next player ")
 	global token
 	token = False
 
@@ -219,7 +220,7 @@ if is_dealer():
 	
 # Game loop
 while True:
-	print("[DEBUG - Game loop] Token? " + str(token))
+	##print("[DEBUG - Game loop] Token? " + str(token))
 
 	if (token):
 		if not is_dealer() or return_token_target == None:
@@ -227,27 +228,27 @@ while True:
 		else:
 			connection.send_cards_to(self_name, return_token_target, get_cards_from_deck(deck, send_card_amount))
 
-	print("[DEBUG] Waiting new message!")
+	#print("[DEBUG] Waiting new message!")
 	message = connection.wait_message() # buffer size is 1024 bytes
 
 	# Somehow messages repeat (?)
-	"""print("[DEBUG] Received message dict:")
-	print(message.__dict__)
-	print("[DEBUG] Last received message:")
-	if (last_received_message != None):
-		print(last_received_message.__dict__)"""
+	##print("[DEBUG] Received message dict:")
+	#print(message.__dict__)
+	##print("[DEBUG] Last received message:")
+	#if (last_received_message != None):
+	#	print(last_received_message.__dict__)
 
 	if (message == last_received_message):
-		print("[DEBUG] Same message received twice!")
+		#print("[DEBUG] Same message received twice!")
 		message = connection.wait_message()
 
 	last_received_message = message
 
-	print("[DEBUG] Message from " + message.sender + " to " + message.target + ". Type: " + message.type)
+	#print("[DEBUG] Message from " + message.sender + " to " + message.target + ". Type: " + message.type)
 
 	# Blocks +2 effect from second player if the affected player isn't able to overcome it
 	if message.type == "CARD_REQUEST":
-		print("[DEBUG] [ALL] Card request")
+		##print("[DEBUG] [ALL] Card request")
 		send_card_amount = message.content
 		if send_card_amount > 1:
 			valid_draw = False
@@ -256,7 +257,7 @@ while True:
 	# Message's target is this player
 	if (self_name == message.target or message.target == "ALL"):
 		if message.type == "CARD_PAYLOAD":
-			print("[DEBUG] [Target] Card payload")
+			#print("[DEBUG] [Target] Card payload")
 			print("Just received " + str(len(message.content)) + " card(s)!")
 
 			cards += message.content
@@ -264,16 +265,16 @@ while True:
 			print_player_cards()
 
 		if message.type == "TOKEN":
-			print("[DEBUG] [Target] Token")
+			#print("[DEBUG] [Target] Token")
 			token = True
 
 		if message.type == "CARD_REQUEST":
-			print("[DEBUG] [Target] Card request from " + message.sender)
+			#print("[DEBUG] [Target] Card request from " + message.sender)
 			return_token_target = message.sender
 			send_card_amount = message.content
 
 		if message.type == "PLAY":
-			print("[DEBUG] [Target] Play")
+			#print("[DEBUG] [Target] Play")
 			print("Player " + message.sender + " has just played a card.")
 			card = message.content
 			print(str(card))
@@ -290,11 +291,11 @@ while True:
 				pile.append(card)
 
 		if message.type == "UNO":
-			print("[DEBUG] [Target] UNO")
+			#print("[DEBUG] [Target] UNO")
 			print("Player " + message.sender + " has shouted UNO!")
 
 		if message.type == "WIN":
-			print("[DEBUG] [Target] WIN")
+			#print("[DEBUG] [Target] WIN")
 			print("Player " + message.sender + " has won the game!")
 			connection.send_message(message)
 			quit()
@@ -303,13 +304,13 @@ while True:
 	if (self_name == message.sender):
 		# Setup messages
 		if (is_dealer() and len(not_sent_cards) > 0):
-			print("[DEBUG] Sending initial cards to " + not_sent_cards[-1])
+			#print("[DEBUG] Sending initial cards to " + not_sent_cards[-1])
 			connection.send_cards_to(self_name, not_sent_cards.pop(), get_cards_from_deck(deck, cards_per_player))
 		# Default behavior
 		else:
 			if message.type == "CARD_PAYLOAD":
 				
-				print("[DEBUG] [Sender] Card payload")
+				#print("[DEBUG] [Sender] Card payload")
 				
 				# First play
 				if (is_dealer() and not game_started):
@@ -319,14 +320,14 @@ while True:
 				 	token = False
 				 	connection.pass_token(self_name, return_token_target)
 
-				 	print("[DEBUG] Returning token to " + return_token_target)
+				 	#print("[DEBUG] Returning token to " + return_token_target)
 
 				 	# Return parameters
 				 	return_token_target = None
 				 	send_card_amount = 0
 
 			if message.type == "PLAY":
-				print("[DEBUG] [Sender] Play")
+				#print("[DEBUG] [Sender] Play")
 				token = False
 
 				if (len(cards) == 1):
@@ -337,32 +338,33 @@ while True:
 
 				if (last_card.card_type == "SKIP"):
 					connection.pass_token_skip(self_name)
-					print("[DEBUG] Sending token to next-next player")
+					#print("[DEBUG] Sending token to next-next player")
 				else:
 				 	connection.pass_token(self_name)
-				 	print("[DEBUG] Sending token to next player")
+				 	#print("[DEBUG] Sending token to next player")
 
 			if message.type == "TOKEN":
-				print("[DEBUG] [Sender] Token")
+				None
+				#print("[DEBUG] [Sender] Token")
 
 			if message.type == "CARD_REQUEST":
-				print("[DEBUG] [Sender] Card request")
+				#print("[DEBUG] [Sender] Card request")
 
 				token = False
 
-				print("[DEBUG] [Card Request] Sending token to " + dealer)
+				#print("[DEBUG] [Card Request] Sending token to " + dealer)
 				connection.pass_token(self_name, dealer)
 
 			if message.type == "UNO":
 				if (last_card.card_type == "SKIP"):
 					connection.pass_token_skip(self_name)
-					print("[DEBUG] Sending token to next-next player")
+					#print("[DEBUG] Sending token to next-next player")
 				else:
 				 	connection.pass_token(self_name)
-				 	print("[DEBUG] Sending token to next player")
+				 	#print("[DEBUG] Sending token to next player")
 	else:
-		print("[DEBUG] Resending message!")
-		print("[DEBUG] Resent message: " + str(message.__dict__))
+		#print("[DEBUG] Resending message!")
+		##print("[DEBUG] Resent message: " + str(message.__dict__))
 		connection.send_message(message)
 
 

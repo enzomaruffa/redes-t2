@@ -9,24 +9,18 @@ import pickle
 # ENV file stuff
 import os
 from os.path import join, dirname
-from dotenv import load_dotenv
- 
-# Create .env file path.
-dotenv_path = join(dirname(__file__), '.env')
- 
-# Load file from the path.
-load_dotenv(dotenv_path)
 
-A_IP = os.getenv('A_IP')
-B_IP = os.getenv('B_IP')
-C_IP = os.getenv('C_IP')
-D_IP = os.getenv('D_IP')
-A_PORT = os.getenv('A_PORT')
-B_PORT = os.getenv('B_PORT')
-C_PORT = os.getenv('C_PORT')
-D_PORT = os.getenv('D_PORT')
+A_IP = "localhost"
+B_IP = "localhost"
+C_IP = "localhost"
+D_IP = "localhost"
 
-DEALER = os.getenv('DEALER')
+A_PORT = 24517
+B_PORT = 24519
+C_PORT = 24521
+D_PORT = 24523
+
+DEALER = "A"
 
 listener_socket = None
 sender_socket = None
@@ -76,7 +70,7 @@ def get_self_info(self_name):
 def setup_connection(self_name):
 	# sets send target
 	target_name, target_ip, target_port = get_next_player(self_name)
-	print("[DEBUG] Connecting send socket to " + target_name)
+	#print("[DEBUG] Connecting send socket to " + target_name)
 
 	global sender_socket
 	sender_socket = socket.socket(socket.AF_INET, # Internet
@@ -88,7 +82,7 @@ def setup_connection(self_name):
 	# sets listener socket
 	global listener_socket
 	self_name, self_ip, self_port = get_self_info(self_name)
-	print("[DEBUG] Setting listener " + self_name)
+	#print("[DEBUG] Setting listener " + self_name)
 
 	listener_socket = socket.socket(socket.AF_INET, # Internet
 	                   socket.SOCK_DGRAM) # UDP
@@ -104,7 +98,7 @@ def send_message(message):
 	sender_socket.sendto(message_code, dest_info)
 
 def send_cards_to(sender, target, cards):
-	print("[DEBUG] Sending cards to " + target)
+	#print("[DEBUG] Sending cards to " + target)
 	message = Message(sender, target, "CARD_PAYLOAD", cards)
 	send_message(message)
 
@@ -115,7 +109,7 @@ def pass_token(sender, target=False):
 		target = get_next_player(sender)[0]
 		message = Message(sender, target, "TOKEN")
 
-	print("[DEBUG] Sending token to " + target)
+	#print("[DEBUG] Sending token to " + target)
 
 	send_message(message)
 
@@ -126,7 +120,7 @@ def pass_token_skip(sender):
 	pass_token(sender, target)
 
 def send_play(sender, card):
-	print("[DEBUG] Sending played card to ALL")
+	#print("[DEBUG] Sending played card to ALL")
 	message = Message(sender, "ALL", "PLAY", card)
 	"""for card in initial_cards:
 		print(card)
@@ -134,17 +128,17 @@ def send_play(sender, card):
 	send_message(message)
 
 def request_cards(sender, target, amount):
-	print("[DEBUG] Sending " + str(amount) +" card requests to " + target)
+	#print("[DEBUG] Sending " + str(amount) +" card requests to " + target)
 	message = Message(sender, target, "CARD_REQUEST", amount)
 	send_message(message)
 
 def uno(sender):
-	print("[DEBUG] Sending UNO!")
+	#print("[DEBUG] Sending UNO!")
 	message = Message(sender, "ALL", "UNO")
 	send_message(message)
 
 def win(sender):
-	print("[DEBUG] Sending win warning!")
+	#print("[DEBUG] Sending win warning!")
 	message = Message(sender, "ALL", "WIN")
 	send_message(message)
 # ---------------------------------------
