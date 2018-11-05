@@ -182,12 +182,13 @@ players = ["A", "B", "C", "D"]
 
 self_name = sys.argv[1]
 print("Playing as: " + self_name)
+print("Waiting dealer...")
 
 connection.setup_connection(self_name)
 
 dealer = connection.get_dealer()
 
-cards_per_player = 7
+cards_per_player = 2
 colors = ["BLUE", "RED", "GREEN", "YELLOW"]
 deck = []
 cards = []
@@ -292,7 +293,7 @@ while True:
 
 		if message.type == "UNO":
 			#print("[DEBUG] [Target] UNO")
-			print("Player " + message.sender + " has shouted UNO!")
+			print("Player " + message.sender + " has shouted \033[91mU\033[96mN\033[93mO\033[92m!\033[00m")
 
 		if message.type == "WIN":
 			#print("[DEBUG] [Target] WIN")
@@ -331,7 +332,8 @@ while True:
 				token = False
 
 				if (len(cards) == 1):
-					input("Press enter to shout UNO!")
+					input("Press enter to shout \033[91mU\033[96mN\033[93mO\033[92m!\033[00m")
+					print("Shouting...!")
 					connection.uno(self_name)
 				elif (len(cards) == 0):
 					connection.win(self_name)
