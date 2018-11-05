@@ -11,8 +11,8 @@ import os
 from os.path import join, dirname
 
 A_IP = "192.168.0.20"
-B_IP = "192.168.0.21"
-C_IP = "192.168.0.18"
+B_IP = "192.168.0.34"
+C_IP = "192.168.0.41"
 D_IP = "192.168.0.40"
 
 A_PORT = 24517
