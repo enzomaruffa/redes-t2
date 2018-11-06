@@ -10,15 +10,15 @@ import pickle
 import os
 from os.path import join, dirname
 
-A_IP = "localhost"
-B_IP = "localhost"
-C_IP = "localhost"
-D_IP = "localhost"
+A_IP = "j21"
+B_IP = "j18"
+C_IP = "j24"
+D_IP = "j25"
 
-A_PORT = 24517
-B_PORT = 24519
-C_PORT = 24521
-D_PORT = 24523
+A_PORT = 4160
+B_PORT = 4130
+C_PORT = 4131
+D_PORT = 4460
 
 DEALER = "A"
 
@@ -86,6 +86,9 @@ def setup_connection(self_name):
 
 	listener_socket = socket.socket(socket.AF_INET, # Internet
 	                   socket.SOCK_DGRAM) # UDP
+
+	#print((self_ip, self_port))
+
 	listener_socket.bind((self_ip, self_port))
 
 def wait_message():

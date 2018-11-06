@@ -188,7 +188,7 @@ connection.setup_connection(self_name)
 
 dealer = connection.get_dealer()
 
-cards_per_player = 2
+cards_per_player = 7
 colors = ["BLUE", "RED", "GREEN", "YELLOW"]
 deck = []
 cards = []
