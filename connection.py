@@ -10,10 +10,10 @@ import pickle
 import os
 from os.path import join, dirname
 
-A_IP = "192.168.0.20"
-B_IP = "192.168.0.34"
-C_IP = "192.168.0.41"
-D_IP = "192.168.0.40"
+A_IP = "localhost"
+B_IP = "localhost"
+C_IP = "localhost"
+D_IP = "localhost"
 
 A_PORT = 24517
 B_PORT = 24519

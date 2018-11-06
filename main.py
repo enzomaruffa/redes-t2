@@ -151,7 +151,7 @@ def has_play_possibility(cards, last_card):
 		return False
 	if (last_card.card_type == "DRAW"):
 		for card in cards:
-			if ("DRAW" == card.card_type or (last_card.color == card.color and bought_single_card)):
+			if ("DRAW" == card.card_type or (last_card.color == card.color and not valid_draw)):
 				return True
 		return False
 
@@ -245,7 +245,8 @@ while True:
 
 	last_received_message = message
 
-	#print("[DEBUG] Message from " + message.sender + " to " + message.target + ". Type: " + message.type)
+	print("[DEBUG] Message from " + message.sender + " to " + message.target + ". Type: " + message.type)
+	# print("[DEBUG] Can buy?" + str(bought_single_card))
 
 	# Blocks +2 effect from second player if the affected player isn't able to overcome it
 	if message.type == "CARD_REQUEST":
@@ -287,6 +288,7 @@ while True:
 				last_card = card
 
 			valid_draw = True
+			bought_single_card = False
 
 			if (is_dealer()):
 				pile.append(card)
